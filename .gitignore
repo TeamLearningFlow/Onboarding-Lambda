@@ -1,0 +1,40 @@
+# Terraform 관련
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+terraform.tfstate.backup
+
+# Serverless 관련
+.serverless/
+serverless-state.json
+cloudformation-template-update-stack.json
+cloudformation-template-create-stack.json
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment (Python)
+venv/
+.venv/
+.env
+Pipfile
+Pipfile.lock
+
+# Logs 및 임시 파일
+logs/
+tmp/
+*.log
+
+# Docker 관련
+.dockerignore
+docker-compose.yml
+*.bak
+
+# IDE 및 OS 관련
+.DS_Store
+.idea/
+.vscode/
+*.swp
