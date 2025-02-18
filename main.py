@@ -53,8 +53,8 @@ def get_driver(url, width, height):
 def process_naver_blog(driver):
     """네이버 블로그 전용 크롤링 처리 (폰트 변경 금지)"""
     try:
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
         driver.switch_to.frame(driver.find_element(By.TAG_NAME, "iframe"))
-        time.sleep(2)  # iframe 로딩 대기
         total_height = driver.execute_script("return document.body.scrollHeight")
     except Exception as e:
         print(f"❌ 네이버 블로그 iframe 접근 실패: {e}")
@@ -65,19 +65,19 @@ def process_naver_blog(driver):
 
 def process_tistory_blog(driver, height):
     """티스토리 블로그 전용 크롤링 처리 (폰트 적용)"""
-    scroll_pause_time = 0.5
-    current_scroll = 0
-    scroll_increment = height
-    total_height = driver.execute_script("return document.body.scrollHeight")
+    scroll_pause_time = 0.2  # 기존 0.5초에서 줄임
+    last_height = driver.execute_script("return document.body.scrollHeight")
 
-    while current_scroll < total_height:
-        driver.execute_script(f"window.scrollTo(0, {current_scroll});")
+    while True:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(scroll_pause_time)
-        current_scroll += scroll_increment
-        total_height = driver.execute_script("return document.body.scrollHeight")
-    
-    return total_height
 
+        new_height = driver.execute_script("return document.body.scrollHeight")
+        if new_height == last_height:  # 더 이상 변화가 없으면 종료
+            break
+        last_height = new_height
+    
+    return last_height
 
 def process_velog_blog(driver, height):
     """벨로그 블로그 전용 크롤링 처리 (폰트 적용)"""
@@ -97,7 +97,6 @@ def capture_screenshot(url, width, height):
 
     total_height = driver.execute_script("return document.body.scrollHeight")
 
-    # 블로그별 맞춤 크롤링 적용
     if "blog.naver.com" in url:
         total_height = process_naver_blog(driver)
     elif "tistory.com" in url:
@@ -105,7 +104,6 @@ def capture_screenshot(url, width, height):
     elif "velog.io" in url:
         total_height = process_velog_blog(driver, height)
 
-    # 전체 페이지 캡처
     driver.set_window_size(width, total_height)
     time.sleep(1)
     ensure_scroll_top(driver)
